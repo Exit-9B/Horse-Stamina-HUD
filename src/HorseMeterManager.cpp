@@ -31,11 +31,14 @@ float HorseMeterManager::GetFillPercent(RE::ActorValueMeter* a_meter)
 	auto player = RE::PlayerCharacter::GetSingleton();
 	if (a_meter->actorValue == RE::ActorValue::kStamina && player && player->IsOnMount())
 	{
-		auto mount = player->lastRiddenMount.get();
+		static REL::Relocation<int(RE::Actor*, RE::ActorPtr*)> getMount{ Offset::Actor_GetMount };
+		RE::ActorPtr mount = nullptr;
+		getMount(player, &mount);
+
 		if (mount)
 		{
-			auto currentValue = mount->GetActorValue(a_meter->actorValue);
-			auto maxValue = mount->GetPermanentActorValue(a_meter->actorValue);
+			auto currentValue = mount ? mount->GetActorValue(a_meter->actorValue) : 0.0f;
+			auto maxValue = mount ? mount->GetPermanentActorValue(a_meter->actorValue) : 0.0f;
 
 			if (maxValue == 0.0f)
 			{
