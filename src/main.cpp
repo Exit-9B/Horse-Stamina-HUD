@@ -10,7 +10,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 		return false;
 	}
 
-	*path /= "HorseStaminaHUD.log"sv;
+	*path /= fmt::format("{}.log"sv, Version::PROJECT);
 	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 #endif
 
@@ -24,11 +24,11 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 #endif
 
 	spdlog::set_default_logger(std::move(log));
-	spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
+	spdlog::set_pattern("%s(%#): [%^%l%$] %v"s);
 
 	a_info->infoVersion = SKSE::PluginInfo::kVersion;
-	a_info->name = "HorseStaminaHUD";
-	a_info->version = 1;
+	a_info->name = Version::PROJECT.data();
+	a_info->version = Version::MAJOR;
 
 	if (a_skse->IsEditor()) {
 		logger::critical("Loaded in editor, marking as incompatible"sv);
@@ -36,8 +36,12 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 	}
 
 	const auto ver = a_skse->RuntimeVersion();
+#ifndef SKYRIMVR
 	if (ver < SKSE::RUNTIME_1_5_39) {
-		logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
+#else
+	if (ver != SKSE::RUNTIME_VR_1_4_15_1) {
+#endif
+		logger::critical(FMT_STRING("Unsupported runtime version {}"sv), ver.string());
 		return false;
 	}
 
@@ -47,7 +51,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
-	logger::info("HorseStaminaHUD loaded");
+	logger::info("{} loaded"sv, Version::PROJECT);
 
 	SKSE::Init(a_skse);
 	SKSE::AllocTrampoline(14);

@@ -1,4 +1,4 @@
-set(headers ${headers}
+set(HEADERS ${HEADERS}
     src/PCH.h
 
     src/Offsets.h
