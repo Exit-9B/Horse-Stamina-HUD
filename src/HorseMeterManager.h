@@ -8,6 +8,8 @@ public:
 private:
 	HorseMeterManager() = default;
 
+	static bool GetMount(RE::Actor* a_actor, RE::ActorPtr* a_mountOut);
+
 	static RE::HUDMenu* SetupHUDMenu(void* a_arg1);
 	static float GetFillPercent(RE::ActorValueMeter* a_meter);
 

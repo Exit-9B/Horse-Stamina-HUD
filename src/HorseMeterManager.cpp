@@ -3,13 +3,20 @@
 
 void HorseMeterManager::InstallHooks()
 {
-	static REL::Relocation<std::uintptr_t> hook{ Offset::HUDMenu_ctor, 0x5D };
+	static REL::Relocation<std::uintptr_t> hook{ Offset::HUDMenu_ctor.address() + 0x5D };
 	auto& trampoline = SKSE::GetTrampoline();
 	_SetupHUDMenu = trampoline.write_call<5>(hook.address(), SetupHUDMenu);
 
 	static REL::Relocation<std::uintptr_t> vtbl{ Offset::ActorValueMeter_Vtbl };
 	_GetFillPercent = vtbl.write_vfunc(0x6, GetFillPercent);
 	logger::info("Installed hook for horse stamina meter"sv);
+}
+
+bool HorseMeterManager::GetMount(RE::Actor* a_actor, RE::ActorPtr* a_mountOut)
+{
+	using func_t = decltype(&GetMount);
+	REL::Relocation<func_t> func{ Offset::Actor_GetMount };
+	return func(a_actor, a_mountOut);
 }
 
 RE::HUDMenu* HorseMeterManager::SetupHUDMenu(void* a_arg1)
@@ -31,9 +38,8 @@ float HorseMeterManager::GetFillPercent(RE::ActorValueMeter* a_meter)
 	auto player = RE::PlayerCharacter::GetSingleton();
 	if (a_meter->actorValue == RE::ActorValue::kStamina && player && player->IsOnMount())
 	{
-		static REL::Relocation<int(RE::Actor*, RE::ActorPtr*)> getMount{ Offset::Actor_GetMount };
-		RE::ActorPtr mount = nullptr;
-		getMount(player, &mount);
+		RE::ActorPtr mount;
+		GetMount(player, &mount);
 
 		if (mount)
 		{
