@@ -1,12 +1,12 @@
 {
   "name": "horsestaminahud",
-  "version-string": "1.0.2",
+  "version-string": "1.0.3",
   "description": "Display your horse's stamina in the HUD",
   "homepage": "https://github.com/Exit-9B/Horse-Stamina-HUD",
   "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",
-    "span-lite",
+    "rsm-binary-io",
     "spdlog"
   ]
 }
