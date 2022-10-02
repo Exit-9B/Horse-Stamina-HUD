@@ -8,7 +8,13 @@ void HorseMeterManager::InstallHooks()
 	std::uintptr_t hookAddr = Offset::MenuManager::CreateHUDMenu.address() + 0x5D;
 
 	auto& trampoline = SKSE::GetTrampoline();
-	_SetupHUDMenu = trampoline.write_call<5>(hookAddr, SetupHUDMenu);
+	if (REL::make_pattern<"E8 ?? ?? ?? ??">().match(hookAddr)) {
+		_SetupHUDMenu = trampoline.write_call<5>(hookAddr, SetupHUDMenu);
+	}
+	else {
+		logger::warn("Failed to install hook for horse stamina meter"sv);
+		return;
+	}
 
 	static REL::Relocation<std::uintptr_t> vtbl{ Offset::ActorValueMeter::Vtbl };
 	_GetFillPercent = vtbl.write_vfunc(0x6, GetFillPercent);
